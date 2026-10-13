@@ -1,0 +1,25 @@
+project:
+  name: perturbatlas-hpc
+  seed: 20261012
+
+dataset:
+  id: replogle_k562
+  format: h5ad
+  input_path: data/raw/replogle_k562.h5ad
+  processed_path: data/processed/replogle_k562_qc.h5ad
+
+qc:
+  min_genes_per_cell: 200
+  min_cells_per_gene: 3
+  max_pct_mito: 20.0
+
+representation:
+  n_top_genes: 2000
+  n_pcs: 50
+
+evaluation:
+  split: perturbation_aware
+  n_repeats: 5
+
+runtime:
+  n_jobs: 32
