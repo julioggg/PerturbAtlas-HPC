@@ -32,7 +32,11 @@ def run_metadata(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def save_metadata(metadata: dict[str, Any], path: str | Path) -> None:
-    """Write metadata as human-readable JSON."""
+    """Write metadata as human-readable JSON.
+
+    ``default=str`` keeps experiment metadata robust to pathlib.Path and other
+    small configuration objects that have a faithful string representation.
+    """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    path.write_text(json.dumps(metadata, indent=2, default=str), encoding="utf-8")
