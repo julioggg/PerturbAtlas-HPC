@@ -136,7 +136,15 @@ def main() -> None:
 
     rel = pd.read_csv(args.reliability, index_col=0)
     table = table.join(rel[["pearson_median"]].rename(columns={"pearson_median": "intrinsic_reproducibility"}), how="left")
-    diagnostics = uncertainty_diagnostics(table)
+
+    # Save the expensive member predictions before any downstream diagnostic step.
+    np.savez_compressed(
+        args.output_dir / "member_predictions.npz",
+        member_predictions=stack.astype(np.float32),
+        perturbations=np.asarray(a.obs_names[te], dtype=str),
+    )
+
+    diagnostics = uncertainty_diagnostics(table, "ensemble_variance")
     diagnostics.update({
         "members": int(args.members),
         "ensemble_median_pearson": float(np.nanmedian(r)),
