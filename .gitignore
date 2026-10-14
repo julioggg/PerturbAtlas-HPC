@@ -1,0 +1,46 @@
+# Large datasets and derived matrices
+data/
+*.h5ad
+*.h5
+*.loom
+*.zarr
+*.parquet
+
+# Model artifacts
+models/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+
+# HPC / runtime
+logs/
+slurm-*.out
+*.err
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Temporary outputs
+tmp/
+scratch/
+results/intermediate/
+figures/drafts/

@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "perturbatlas"
+version = "0.1.0"
+description = "Uncertainty-aware benchmarking of single-cell perturbation responses"
+requires-python = ">=3.10"
+dependencies = [
+  "anndata",
+  "scanpy",
+  "numpy",
+  "pandas",
+  "scipy",
+  "scikit-learn",
+  "torch",
+  "pyyaml",
+  "pyarrow",
+  "tqdm"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
