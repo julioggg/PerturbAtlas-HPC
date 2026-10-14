@@ -6,6 +6,9 @@ data/
 *.zarr
 *.parquet
 
+# Compressed numerical artifacts
+*.npz
+
 # Model artifacts
 models/
 checkpoints/
