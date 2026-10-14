@@ -5,7 +5,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
+
+os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
 
 import anndata as ad
 import numpy as np
@@ -30,6 +33,7 @@ def main() -> None:
     p.add_argument("--batch-size", type=int, default=64)
     p.add_argument("--lr", type=float, default=1e-3)
     p.add_argument("--seed", type=int, default=20261013)
+    p.add_argument("--patience", type=int, default=15)
     args = p.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -51,14 +55,21 @@ def main() -> None:
     yva = (xb[va] - mean) / std
     xte = (xa[te] - mean) / std
 
-    train_loader = DataLoader(TensorDataset(torch.from_numpy(xtr), torch.from_numpy(ytr)), batch_size=args.batch_size, shuffle=True)
+    train_loader = DataLoader(
+        TensorDataset(torch.from_numpy(xtr), torch.from_numpy(ytr)),
+        batch_size=args.batch_size,
+        shuffle=True,
+    )
     model = DenoisingAutoencoder(xa.shape[1], hidden=args.hidden, latent=args.latent)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
     loss_fn = nn.MSELoss()
 
     best = float("inf")
+    best_epoch = 0
     best_state = None
+    epochs_without_improvement = 0
     history = []
+
     for epoch in range(1, args.epochs + 1):
         model.train()
         losses = []
@@ -69,21 +80,37 @@ def main() -> None:
             loss.backward()
             opt.step()
             losses.append(float(loss.detach()))
+
         model.eval()
         with torch.no_grad():
             val_loss = float(loss_fn(model(torch.from_numpy(xva)), torch.from_numpy(yva)))
+
         train_loss = float(np.mean(losses))
         history.append({"epoch": epoch, "train_loss": train_loss, "val_loss": val_loss})
-        if val_loss < best:
+
+        if val_loss < best - 1e-6:
             best = val_loss
+            best_epoch = epoch
             best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+            epochs_without_improvement = 0
+        else:
+            epochs_without_improvement += 1
+
         if epoch % 10 == 0 or epoch == 1:
             print(f"epoch={epoch:03d} train={train_loss:.6f} val={val_loss:.6f}")
+
+        if epochs_without_improvement >= args.patience:
+            print(f"early stopping at epoch={epoch}; best_epoch={best_epoch}")
+            break
+
+    if best_state is None:
+        raise RuntimeError("Training completed without a valid checkpoint.")
 
     model.load_state_dict(best_state)
     model.eval()
     with torch.no_grad():
         pred_std = model(torch.from_numpy(xte)).numpy()
+
     pred = pred_std * std + mean
     target = xb[te]
     r = row_pearson(pred, target)
@@ -96,15 +123,28 @@ def main() -> None:
         "mean_pearson": float(np.nanmean(r)),
         "median_rmse": float(np.median(rmse)),
         "best_val_loss": float(best),
-        "epochs": int(args.epochs),
+        "best_epoch": int(best_epoch),
+        "epochs_requested": int(args.epochs),
+        "epochs_ran": int(len(history)),
         "hidden": int(args.hidden),
         "latent": int(args.latent),
     }
-    (args.output_dir / "summary.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+
+    (args.output_dir / "summary.json").write_text(
+        json.dumps(result, indent=2),
+        encoding="utf-8",
+    )
     pd.DataFrame(history).to_csv(args.output_dir / "history.csv", index=False)
-    pd.DataFrame({"perturbation": a.obs_names[te], "pearson": r, "rmse": rmse}).to_csv(args.output_dir / "per_perturbation.csv", index=False)
+    pd.DataFrame(
+        {
+            "perturbation": a.obs_names[te],
+            "pearson": r,
+            "rmse": rmse,
+        }
+    ).to_csv(args.output_dir / "per_perturbation.csv", index=False)
     torch.save(best_state, args.output_dir / "model.pt")
     save_metadata(run_metadata(vars(args)), args.output_dir / "run_metadata.json")
+
     print("\n=== PYTORCH TEST RESULT ===")
     print(json.dumps(result, indent=2))
 
