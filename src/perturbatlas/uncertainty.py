@@ -46,7 +46,7 @@ def pairwise_correlation_disagreement(predictions: np.ndarray) -> np.ndarray:
 
 def uncertainty_diagnostics(
     table: pd.DataFrame,
-    uncertainty_col: str,
+    uncertainty_col: str = "ensemble_variance",
     pearson_col: str = "pearson",
     rmse_col: str = "rmse",
     reliability_col: str = "intrinsic_reproducibility",
