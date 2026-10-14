@@ -1,0 +1,22 @@
+{
+  "dataset_profile": {
+    "n_cells": 308646,
+    "n_genes": 8563,
+    "n_perturbations": 1972,
+    "n_controls": 10691,
+    "min_cells_per_perturbation": 30,
+    "median_cells_per_perturbation": 125.0,
+    "max_cells_per_perturbation": 10691,
+    "target_gene_coverage": 1789,
+    "target_gene_coverage_fraction": 0.9076610857432775
+  },
+  "sample_expression": {
+    "sample_cells": 5000,
+    "matrix_type": "csr_matrix",
+    "dtype": "float32",
+    "mean_expression": 0.3970687985420227,
+    "min_expression": 0.19908340275287628,
+    "max_expression": 7.120959758758545,
+    "approx_zero_fraction": 0.5796810697185566
+  }
+}

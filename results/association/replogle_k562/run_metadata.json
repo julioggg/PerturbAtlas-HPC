@@ -1,0 +1,9 @@
+{
+  "timestamp_utc": "2026-10-13T22:29:10.472593+00:00",
+  "git_commit": "bbb181498ce04f5b2de3be139eccc99d87cce8e4",
+  "python": "3.10.20",
+  "platform": "Linux-5.4.0-216-generic-x86_64-with-glibc2.41",
+  "config": {
+    "table": "results/reliability/replogle_k562/reliability_table.csv"
+  }
+}

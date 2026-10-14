@@ -1,0 +1,18 @@
+{
+  "n_test_matched": 295,
+  "best_pca": "pca_128",
+  "median_identity_pearson": 0.2561024535986385,
+  "median_best_pca_pearson": 0.3528499766647374,
+  "median_pytorch_pearson": 0.3448064113280233,
+  "spearman_best_pca_vs_intrinsic_repro": 0.9689684669103557,
+  "spearman_pytorch_vs_intrinsic_repro": 0.9373334766797239,
+  "median_pca_gain_over_identity": 0.052001052199682596,
+  "median_pytorch_gain_over_identity": 0.050535217903769025,
+  "median_pytorch_minus_best_pca": -0.0017535825798234983,
+  "n_intrinsic_r_gt_0_5": 86,
+  "median_best_pca_if_intrinsic_r_gt_0_5": 0.7968616878983199,
+  "median_pytorch_if_intrinsic_r_gt_0_5": 0.7677946273947284,
+  "n_intrinsic_r_gt_0_8": 31,
+  "median_best_pca_if_intrinsic_r_gt_0_8": 0.8934426523220774,
+  "median_pytorch_if_intrinsic_r_gt_0_8": 0.8833246529520213
+}

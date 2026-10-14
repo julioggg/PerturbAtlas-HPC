@@ -1,0 +1,12 @@
+{
+  "timestamp_utc": "2026-10-13T20:27:26.728850+00:00",
+  "git_commit": "9c16777ad2ac5451b6d993365fc54410a13e234d",
+  "python": "3.10.20",
+  "platform": "Linux-5.4.0-216-generic-x86_64-with-glibc2.41",
+  "config": {
+    "raw": "data/raw/replogle22k562_processed_complete.h5ad",
+    "atlas": "results/atlas/replogle_k562_response_atlas.h5ad",
+    "perturbation_col": "perturbation",
+    "control_label": "control"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "n_test": 295,
+  "spearman_uncertainty_vs_correlation_error": -0.7347859620256717,
+  "spearman_uncertainty_vs_rmse": 0.45750979273981707,
+  "failure_detection_auc_below_median_pearson": 0.10921125206839491,
+  "median_pearson_lowest_uncertainty_quartile": 0.13706043625378245,
+  "median_pearson_highest_uncertainty_quartile": 0.7626414657585319,
+  "spearman_uncertainty_vs_intrinsic_reliability": 0.761345555171221,
+  "members": 5,
+  "ensemble_median_pearson": 0.36534085834598806,
+  "ensemble_mean_pearson": 0.4044961932380305,
+  "ensemble_median_rmse": 0.04969475045800209
+}

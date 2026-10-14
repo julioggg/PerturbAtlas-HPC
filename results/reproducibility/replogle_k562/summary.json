@@ -1,0 +1,8 @@
+{
+  "n_perturbations": 1971,
+  "repeats": 10,
+  "median_pearson_across_perturbations": 0.2600180601316108,
+  "median_cosine_across_perturbations": 0.26541127264499664,
+  "median_nrmse_across_perturbations": 1.2134185604070258,
+  "spearman_ncells_vs_pearson": 0.31346098405416134
+}

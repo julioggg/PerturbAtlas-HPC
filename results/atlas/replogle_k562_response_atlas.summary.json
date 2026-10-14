@@ -1,0 +1,6 @@
+{
+  "n_perturbations": 1971,
+  "n_genes": 8563,
+  "n_controls": 10691,
+  "matrix_type": "csr_matrix"
+}

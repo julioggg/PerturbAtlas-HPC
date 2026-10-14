@@ -1,0 +1,20 @@
+{
+  "timestamp_utc": "2026-10-14T01:35:39.764425+00:00",
+  "git_commit": "7892d623e07088793a3238e815ec7f013058cc68",
+  "python": "3.10.20",
+  "platform": "Linux-5.4.0-216-generic-x86_64-with-glibc2.41",
+  "config": {
+    "half_a": "results/benchmark/replogle_k562/half_A.h5ad",
+    "half_b": "results/benchmark/replogle_k562/half_B.h5ad",
+    "reliability": "results/reliability/replogle_k562/reliability_table.csv",
+    "output_dir": "results/uncertainty/replogle_k562",
+    "members": 5,
+    "epochs": 60,
+    "patience": 10,
+    "hidden": 512,
+    "latent": 64,
+    "batch_size": 64,
+    "lr": 0.001,
+    "seed": 20261013
+  }
+}

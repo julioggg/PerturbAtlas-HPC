@@ -1,0 +1,8 @@
+{
+  "n_null_sizes": 40,
+  "n_replicates_per_size": 100,
+  "fraction_above_q95": 0.8447488584474886,
+  "fraction_above_q99": 0.793505834601725,
+  "median_empirical_l2_over_q95": 1.2768706115136308,
+  "spearman_analytic_null_vs_empirical_q95": 1.0
+}

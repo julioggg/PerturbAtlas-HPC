@@ -1,0 +1,11 @@
+{
+  "timestamp_utc": "2026-10-14T18:16:45.373610+00:00",
+  "git_commit": "2ba5a19cf84149f2f3b6a47b3610f25ca4b48b25",
+  "python": "3.10.20",
+  "platform": "Linux-5.4.0-216-generic-x86_64-with-glibc2.41",
+  "config": {
+    "predictions": "results/uncertainty/replogle_k562_v2/member_predictions.npz",
+    "table": "results/uncertainty/replogle_k562_v2/per_perturbation.csv",
+    "output_dir": "results/uncertainty_calibrated/replogle_k562"
+  }
+}

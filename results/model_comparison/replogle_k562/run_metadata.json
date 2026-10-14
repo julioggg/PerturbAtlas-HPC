@@ -1,0 +1,14 @@
+{
+  "timestamp_utc": "2026-10-14T01:20:45.763429+00:00",
+  "git_commit": "4fdb4ca721cbc7861cef27ff40a8c0b8897d9106",
+  "python": "3.10.20",
+  "platform": "Linux-5.4.0-216-generic-x86_64-with-glibc2.41",
+  "config": {
+    "table": "results/model_reliability/replogle_k562/model_reliability_table.csv",
+    "model_a": "pca_128",
+    "model_b": "pytorch",
+    "bootstrap": 10000,
+    "seed": 20261013,
+    "output_dir": "results/model_comparison/replogle_k562"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "n_matched": 295,
+  "model_a": "pca_128",
+  "model_b": "pytorch",
+  "median_paired_difference": 0.0017535825798234983,
+  "mean_paired_difference": 0.004057443093782374,
+  "bootstrap_median_difference_ci95_low": -0.0037502827701967334,
+  "bootstrap_median_difference_ci95_high": 0.007918617146355791,
+  "fraction_model_a_wins": 0.5186440677966102,
+  "fraction_model_b_wins": 0.48135593220338985,
+  "fraction_ties": 0.0,
+  "wilcoxon_statistic": 20371.0,
+  "wilcoxon_pvalue": 0.31975049599171734,
+  "n_intrinsic_r_gt_0_5": 86,
+  "median_model_a_fraction_of_intrinsic_r_gt_0_5": 1.0572526173972874,
+  "median_model_b_fraction_of_intrinsic_r_gt_0_5": 1.0427159746287917,
+  "n_intrinsic_r_gt_0_8": 31
+}

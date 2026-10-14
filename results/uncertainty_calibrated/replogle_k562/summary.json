@@ -1,0 +1,29 @@
+{
+  "raw_ensemble_variance": {
+    "n_test": 295,
+    "spearman_uncertainty_vs_correlation_error": -0.7347859620256717,
+    "spearman_uncertainty_vs_rmse": 0.45750979273981707,
+    "failure_detection_auc_below_median_pearson": 0.10921125206839491,
+    "median_pearson_lowest_uncertainty_quartile": 0.1370604362537824,
+    "median_pearson_highest_uncertainty_quartile": 0.7626414657585319,
+    "spearman_uncertainty_vs_intrinsic_reliability": 0.761345555171221
+  },
+  "relative_ensemble_variance": {
+    "n_test": 295,
+    "spearman_uncertainty_vs_correlation_error": 0.883876803126198,
+    "spearman_uncertainty_vs_rmse": -0.07834191853562315,
+    "failure_detection_auc_below_median_pearson": 0.9575289575289575,
+    "median_pearson_lowest_uncertainty_quartile": 0.7899254645759722,
+    "median_pearson_highest_uncertainty_quartile": 0.1083983702872914,
+    "spearman_uncertainty_vs_intrinsic_reliability": -0.8151214860657962
+  },
+  "pairwise_correlation_disagreement": {
+    "n_test": 295,
+    "spearman_uncertainty_vs_correlation_error": 0.8887937401254594,
+    "spearman_uncertainty_vs_rmse": -0.07811661540475101,
+    "failure_detection_auc_below_median_pearson": 0.9574370288656003,
+    "median_pearson_lowest_uncertainty_quartile": 0.7899254645759722,
+    "median_pearson_highest_uncertainty_quartile": 0.1065997968479362,
+    "spearman_uncertainty_vs_intrinsic_reliability": -0.8183075154019466
+  }
+}

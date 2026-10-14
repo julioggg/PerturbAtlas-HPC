@@ -1,0 +1,10 @@
+{
+  "timestamp_utc": "2026-10-13T20:41:32.540751+00:00",
+  "git_commit": "b0d7b70857d0c0f57ed51b7ed80b7d6a088c6904",
+  "python": "3.10.20",
+  "platform": "Linux-5.4.0-216-generic-x86_64-with-glibc2.41",
+  "config": {
+    "atlas": "results/atlas/replogle_k562_response_atlas.h5ad",
+    "effects": "results/effects/replogle_k562/effect_calibration.csv"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "target_response": {
+    "n_targets_measured": 1789,
+    "fraction_target_decreased": 0.9972051425377306,
+    "median_target_delta": -0.3293059468269348,
+    "mean_target_delta": -0.48450337938210564
+  },
+  "ranking": {
+    "n_perturbations": 1971,
+    "spearman_naive_vs_adjusted": 0.8902314411199035,
+    "median_absolute_rank_shift": 127.0,
+    "mean_absolute_rank_shift": 183.81380010147134,
+    "top100_overlap": 89,
+    "top100_jaccard": 0.8018018018018018
+  }
+}

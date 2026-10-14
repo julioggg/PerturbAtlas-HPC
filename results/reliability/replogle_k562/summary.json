@@ -1,0 +1,9 @@
+{
+  "n_perturbations": 1971,
+  "spearman_l2_vs_reproducibility": 0.7399896642056895,
+  "spearman_adjusted_l2_vs_reproducibility": 0.9395835217270974,
+  "spearman_null_ratio_vs_reproducibility": 0.9924176665687646,
+  "fraction_reproducible_r_gt_0_5": 0.273972602739726,
+  "fraction_reproducible_r_gt_0_8": 0.09233891425672247,
+  "fraction_strong_and_reproducible": 0.273972602739726
+}

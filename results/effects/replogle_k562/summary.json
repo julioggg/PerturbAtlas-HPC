@@ -1,0 +1,6 @@
+{
+  "n_perturbations": 1971,
+  "n_controls": 10691,
+  "spearman_ncells_l2": -0.29314882185996655,
+  "spearman_ncells_mean_abs": -0.3770917486729748
+}

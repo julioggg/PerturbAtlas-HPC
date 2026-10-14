@@ -1,0 +1,7 @@
+{
+  "n_perturbations": 1971,
+  "partial_rho_adjusted_l2_controlling_log_n": 0.9775041560428571,
+  "partial_rho_null_ratio_controlling_log_n": 0.9917983166371332,
+  "median_within_bin_rho_adjusted_l2_vs_repro": 0.9873932051811768,
+  "median_within_bin_rho_null_ratio_vs_repro": 0.9913128695505017
+}

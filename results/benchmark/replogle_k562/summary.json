@@ -1,0 +1,8 @@
+{
+  "n_perturbations": 1971,
+  "n_genes": 8563,
+  "n_train": 1380,
+  "n_val": 296,
+  "n_test": 295,
+  "seed": 20261013
+}
