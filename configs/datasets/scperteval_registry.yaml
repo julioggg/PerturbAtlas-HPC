@@ -1,0 +1,64 @@
+# Standardized scPertEval datasets used for the first external-validation phase.
+# Source documentation:
+# https://github.com/Virtual-Cell-Research-Community/scPertEval/blob/main/docs/user-guide/datasets.md
+#
+# These hosted files are trimmed, log-normalized single-cell perturbation datasets
+# with X, obs["perturbation"], and gene names retained. They are intended as a
+# consistent starting point for reliability-aware benchmarking.
+
+datasets:
+  - id: replogle22k562
+    cell_context: K562
+    perturbation_class: CRISPRi
+    reference_family: Replogle_2022
+    url: https://storage.googleapis.com/scperteval/processed/replogle22k562_processed_complete.h5ad
+    local_path: data/raw/replogle22k562_processed_complete.h5ad
+    role: discovery
+
+  - id: replogle22rpe1
+    cell_context: RPE1
+    perturbation_class: CRISPRi
+    reference_family: Replogle_2022
+    url: https://storage.googleapis.com/scperteval/processed/replogle22rpe1_processed_complete.h5ad
+    local_path: data/raw/replogle22rpe1_processed_complete.h5ad
+    role: external_validation
+
+  - id: nadig25hepg2
+    cell_context: HepG2
+    perturbation_class: genetic
+    reference_family: Nadig_2025
+    url: https://storage.googleapis.com/scperteval/processed/nadig25hepg2_processed_complete.h5ad
+    local_path: data/raw/nadig25hepg2_processed_complete.h5ad
+    role: external_validation
+
+  - id: nadig25jurkat
+    cell_context: Jurkat
+    perturbation_class: genetic
+    reference_family: Nadig_2025
+    url: https://storage.googleapis.com/scperteval/processed/nadig25jurkat_processed_complete.h5ad
+    local_path: data/raw/nadig25jurkat_processed_complete.h5ad
+    role: external_validation
+
+  - id: wessels23
+    cell_context: THP-1
+    perturbation_class: combinatorial
+    reference_family: Wessels_2023
+    url: https://storage.googleapis.com/scperteval/processed/wessels23_processed_complete.h5ad
+    local_path: data/raw/wessels23_processed_complete.h5ad
+    role: modality_shift
+
+  - id: arch1
+    cell_context: H1_hESC
+    perturbation_class: genetic
+    reference_family: Roohani_2025
+    url: https://storage.googleapis.com/scperteval/processed/arch1_processed_complete.h5ad
+    local_path: data/raw/arch1_processed_complete.h5ad
+    role: developmental_context
+
+  - id: kaden25rpe1
+    cell_context: RPE1
+    perturbation_class: genetic
+    reference_family: Kaden_2025
+    url: https://storage.googleapis.com/scperteval/processed/kaden25rpe1_processed_complete.h5ad
+    local_path: data/raw/kaden25rpe1_processed_complete.h5ad
+    role: external_validation
