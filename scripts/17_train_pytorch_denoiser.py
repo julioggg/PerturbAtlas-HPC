@@ -60,7 +60,7 @@ def main() -> None:
         batch_size=args.batch_size,
         shuffle=True,
     )
-    model = DenoisingAutoencoder(xa.shape[1], hidden=args.hidden, latent=args.latent)
+    model = DenoisingAutoencoder(xa.shape[1], hidden=args.hidden, latent=args.latent).to(device)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
     loss_fn = nn.MSELoss()
 
@@ -74,6 +74,7 @@ def main() -> None:
         model.train()
         losses = []
         for x, y in train_loader:
+            x, y = x.to(device, non_blocking=True), y.to(device, non_blocking=True)
             opt.zero_grad(set_to_none=True)
             pred = model(x)
             loss = loss_fn(pred, y)
@@ -83,7 +84,9 @@ def main() -> None:
 
         model.eval()
         with torch.no_grad():
-            val_loss = float(loss_fn(model(torch.from_numpy(xva)), torch.from_numpy(yva)))
+            xv = torch.from_numpy(xva).to(device)
+            yv = torch.from_numpy(yva).to(device)
+            val_loss = float(loss_fn(model(xv), yv))
 
         train_loss = float(np.mean(losses))
         history.append({"epoch": epoch, "train_loss": train_loss, "val_loss": val_loss})
@@ -109,7 +112,7 @@ def main() -> None:
     model.load_state_dict(best_state)
     model.eval()
     with torch.no_grad():
-        pred_std = model(torch.from_numpy(xte)).numpy()
+        pred_std = model(torch.from_numpy(xte).to(device)).cpu().numpy()
 
     pred = pred_std * std + mean
     target = xb[te]
@@ -128,6 +131,7 @@ def main() -> None:
         "epochs_ran": int(len(history)),
         "hidden": int(args.hidden),
         "latent": int(args.latent),
+        "device": str(device),
     }
 
     (args.output_dir / "summary.json").write_text(
