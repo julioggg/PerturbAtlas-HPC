@@ -41,8 +41,19 @@ def target_response_table(atlas_path: str | Path) -> pd.DataFrame:
             }
         )
 
-    out = pd.DataFrame(rows).set_index("perturbation")
-    return out
+    columns = [
+        "perturbation",
+        "n_cells",
+        "target_delta",
+        "control_mean",
+        "perturbation_mean",
+        "target_decreased",
+        "target_abs_delta",
+    ]
+    out = pd.DataFrame(rows, columns=columns)
+    if out.empty:
+        return out.set_index(pd.Index([], name="perturbation"))
+    return out.set_index("perturbation")
 
 
 def target_response_summary(table: pd.DataFrame) -> dict[str, float | int]:
