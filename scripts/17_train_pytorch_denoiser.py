@@ -5,10 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 from pathlib import Path
-
-os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
 
 import anndata as ad
 import numpy as np
@@ -34,12 +31,20 @@ def main() -> None:
     p.add_argument("--lr", type=float, default=1e-3)
     p.add_argument("--seed", type=int, default=20261013)
     p.add_argument("--patience", type=int, default=15)
+    p.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
     args = p.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
     torch.set_num_threads(min(32, torch.get_num_threads()))
+    if args.device == "auto":
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    else:
+        device = torch.device(args.device)
+    if device.type == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("CUDA requested but is not available.")
+    print(f"device={device}")
 
     a, b = ad.read_h5ad(args.half_a), ad.read_h5ad(args.half_b)
     xa, xb = np.asarray(a.X, dtype=np.float32), np.asarray(b.X, dtype=np.float32)
