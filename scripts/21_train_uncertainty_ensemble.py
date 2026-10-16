@@ -23,7 +23,7 @@ from perturbatlas.reproducibility import run_metadata, save_metadata
 from perturbatlas.uncertainty import perturbation_uncertainty, uncertainty_diagnostics
 
 
-def train_member(xtr, ytr, xva, yva, n_genes, seed, hidden, latent, batch_size, lr, epochs, patience):
+def train_member(xtr, ytr, xva, yva, n_genes, seed, hidden, latent, batch_size, lr, epochs, patience, device):
     np.random.seed(seed)
     torch.manual_seed(seed)
     loader = DataLoader(
@@ -31,7 +31,7 @@ def train_member(xtr, ytr, xva, yva, n_genes, seed, hidden, latent, batch_size, 
         batch_size=batch_size,
         shuffle=True,
     )
-    model = DenoisingAutoencoder(n_genes, hidden=hidden, latent=latent)
+    model = DenoisingAutoencoder(n_genes, hidden=hidden, latent=latent).to(device)
     opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
     loss_fn = nn.MSELoss()
     best = float("inf")
@@ -42,6 +42,7 @@ def train_member(xtr, ytr, xva, yva, n_genes, seed, hidden, latent, batch_size, 
     for epoch in range(1, epochs + 1):
         model.train()
         for x, y in loader:
+            x, y = x.to(device, non_blocking=True), y.to(device, non_blocking=True)
             opt.zero_grad(set_to_none=True)
             loss = loss_fn(model(x), y)
             loss.backward()
@@ -49,7 +50,9 @@ def train_member(xtr, ytr, xva, yva, n_genes, seed, hidden, latent, batch_size, 
 
         model.eval()
         with torch.no_grad():
-            val = float(loss_fn(model(torch.from_numpy(xva)), torch.from_numpy(yva)))
+            xv = torch.from_numpy(xva).to(device)
+            yv = torch.from_numpy(yva).to(device)
+            val = float(loss_fn(model(xv), yv))
         if val < best - 1e-6:
             best = val
             best_epoch = epoch
@@ -80,9 +83,17 @@ def main() -> None:
     p.add_argument("--batch-size", type=int, default=64)
     p.add_argument("--lr", type=float, default=1e-3)
     p.add_argument("--seed", type=int, default=20261013)
+    p.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
     args = p.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
     torch.set_num_threads(min(32, torch.get_num_threads()))
+    if args.device == "auto":
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    else:
+        device = torch.device(args.device)
+    if device.type == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("CUDA requested but is not available.")
+    print(f"device={device}")
 
     a, b = ad.read_h5ad(args.half_a), ad.read_h5ad(args.half_b)
     xa, xb = np.asarray(a.X, dtype=np.float32), np.asarray(b.X, dtype=np.float32)
@@ -104,11 +115,11 @@ def main() -> None:
         model, best_val, best_epoch = train_member(
             xtr, ytr, xva, yva, xa.shape[1], seed,
             args.hidden, args.latent, args.batch_size, args.lr,
-            args.epochs, args.patience,
+            args.epochs, args.patience, device,
         )
         model.eval()
         with torch.no_grad():
-            pred_std = model(torch.from_numpy(xte)).numpy()
+            pred_std = model(torch.from_numpy(xte).to(device)).cpu().numpy()
         pred = pred_std * std + mean
         preds.append(pred.astype(np.float32))
         r = row_pearson(pred, target)
@@ -150,6 +161,7 @@ def main() -> None:
         "ensemble_median_pearson": float(np.nanmedian(r)),
         "ensemble_mean_pearson": float(np.nanmean(r)),
         "ensemble_median_rmse": float(np.median(rmse)),
+        "device": str(device),
     })
 
     table.to_csv(args.output_dir / "per_perturbation.csv")
