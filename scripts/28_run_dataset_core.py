@@ -34,8 +34,12 @@ def main() -> None:
     effects_dir = Path(f"results/effects/{ds}")
     validation_dir = Path(f"results/validation/{ds}")
     repro_dir = Path(f"results/reproducibility/{ds}")
+    profile_dir = Path(f"results/profile/{ds}")
 
-    run([py, "scripts/01_profile_dataset.py", str(args.raw)])
+    run([
+        py, "scripts/01_profile_dataset.py", str(args.raw),
+        "--output-dir", str(profile_dir),
+    ])
     run([py, "scripts/02_build_response_atlas.py", str(args.raw), "--output", str(atlas)])
     run([
         py, "scripts/03_calibrate_effects.py",
