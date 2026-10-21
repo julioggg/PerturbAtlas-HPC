@@ -36,9 +36,10 @@ def main() -> None:
         seed=args.seed,
         n_bootstrap=args.bootstrap,
     )
+    model_cols = list(dict.fromkeys(["identity_half_A", args.model_a, args.model_b]))
     stratified = stratified_model_performance(
         df,
-        ["identity_half_A", args.model_a, args.model_b],
+        model_cols,
     )
 
     paired.to_csv(args.output_dir / "paired_model_differences.csv")
