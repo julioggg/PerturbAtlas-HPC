@@ -19,6 +19,12 @@ def main() -> None:
     p.add_argument("pytorch", type=Path)
     p.add_argument("reliability", type=Path)
     p.add_argument("--output-dir", type=Path, default=Path("results/model_reliability/replogle_k562"))
+    p.add_argument(
+        "--pca-model",
+        default=None,
+        help="Locked PCA model chosen on validation data (e.g. pca_64). "
+             "If omitted, legacy behavior selects the best PCA on test data.",
+    )
     args = p.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -30,13 +36,23 @@ def main() -> None:
     pt = pt.set_index("perturbation").rename(columns={"pearson": "pytorch"})[["pytorch"]]
     df = rel.join(wide, how="inner").join(pt, how="inner")
 
-    best_pca = None
-    best_median = -np.inf
-    for col in [c for c in wide.columns if str(c).startswith("pca_")]:
-        med = float(df[col].median(skipna=True))
-        if med > best_median:
-            best_median = med
-            best_pca = col
+    if args.pca_model is not None:
+        if args.pca_model not in wide.columns:
+            raise ValueError(
+                f"Requested --pca-model {args.pca_model!r} not found. "
+                f"Available PCA models: {[c for c in wide.columns if str(c).startswith('pca_')]}"
+            )
+        best_pca = args.pca_model
+        pca_selection_source = "validation_locked"
+    else:
+        best_pca = None
+        best_median = -np.inf
+        for col in [c for c in wide.columns if str(c).startswith("pca_")]:
+            med = float(df[col].median(skipna=True))
+            if med > best_median:
+                best_median = med
+                best_pca = col
+        pca_selection_source = "legacy_test_selected"
 
     df["pca_gain_over_identity"] = df[best_pca] - df["identity_half_A"]
     df["pytorch_gain_over_identity"] = df["pytorch"] - df["identity_half_A"]
@@ -48,6 +64,7 @@ def main() -> None:
     summary = {
         "n_test_matched": int(df.shape[0]),
         "best_pca": str(best_pca),
+        "pca_selection_source": pca_selection_source,
         "median_identity_pearson": float(df["identity_half_A"].median()),
         "median_best_pca_pearson": float(df[best_pca].median()),
         "median_pytorch_pearson": float(df["pytorch"].median()),
