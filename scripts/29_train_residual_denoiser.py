@@ -1,0 +1,169 @@
+#!/usr/bin/env python3
+"""Train an identity-preserving residual denoiser for response recovery."""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+import anndata as ad
+import numpy as np
+import pandas as pd
+import torch
+from torch import nn
+from torch.utils.data import DataLoader, TensorDataset
+
+from perturbatlas.benchmark import row_pearson
+from perturbatlas.models import ResidualDenoiser
+from perturbatlas.reproducibility import run_metadata, save_metadata
+
+
+def main() -> None:
+    p = argparse.ArgumentParser()
+    p.add_argument("half_a", type=Path)
+    p.add_argument("half_b", type=Path)
+    p.add_argument("--output-dir", type=Path, required=True)
+    p.add_argument("--epochs", type=int, default=100)
+    p.add_argument("--hidden", type=int, default=256)
+    p.add_argument("--latent", type=int, default=32)
+    p.add_argument("--batch-size", type=int, default=64)
+    p.add_argument("--lr", type=float, default=1e-3)
+    p.add_argument("--weight-decay", type=float, default=1e-4)
+    p.add_argument("--residual-scale", type=float, default=0.1)
+    p.add_argument("--seed", type=int, default=20261016)
+    p.add_argument("--patience", type=int, default=15)
+    p.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
+    args = p.parse_args()
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    torch.set_num_threads(min(32, torch.get_num_threads()))
+    device = torch.device(
+        "cuda" if args.device == "auto" and torch.cuda.is_available() else
+        ("cpu" if args.device == "auto" else args.device)
+    )
+    if device.type == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("CUDA requested but unavailable.")
+    print(f"device={device}")
+
+    a, b = ad.read_h5ad(args.half_a), ad.read_h5ad(args.half_b)
+    xa, xb = np.asarray(a.X, dtype=np.float32), np.asarray(b.X, dtype=np.float32)
+    split = a.obs["split"].astype(str).to_numpy()
+    tr, va, te = split == "train", split == "val", split == "test"
+
+    mean = xa[tr].mean(axis=0, keepdims=True)
+    std = xa[tr].std(axis=0, keepdims=True)
+    std[std < 1e-4] = 1.0
+
+    xtr = (xa[tr] - mean) / std
+    ytr = (xb[tr] - mean) / std
+    xva = (xa[va] - mean) / std
+    yva = (xb[va] - mean) / std
+    xte = (xa[te] - mean) / std
+
+    loader = DataLoader(
+        TensorDataset(torch.from_numpy(xtr), torch.from_numpy(ytr)),
+        batch_size=args.batch_size, shuffle=True
+    )
+
+    model = ResidualDenoiser(
+        xa.shape[1],
+        hidden=args.hidden,
+        latent=args.latent,
+        residual_scale=args.residual_scale,
+    ).to(device)
+    opt = torch.optim.AdamW(
+        model.parameters(), lr=args.lr, weight_decay=args.weight_decay
+    )
+    loss_fn = nn.MSELoss()
+
+    best = float("inf")
+    best_epoch = 0
+    best_state = None
+    wait = 0
+    history = []
+
+    for epoch in range(1, args.epochs + 1):
+        model.train()
+        losses = []
+        for x, y in loader:
+            x, y = x.to(device), y.to(device)
+            opt.zero_grad(set_to_none=True)
+            pred = model(x)
+            loss = loss_fn(pred, y)
+            loss.backward()
+            opt.step()
+            losses.append(float(loss.detach()))
+
+        model.eval()
+        with torch.no_grad():
+            xv = torch.from_numpy(xva).to(device)
+            yv = torch.from_numpy(yva).to(device)
+            val_loss = float(loss_fn(model(xv), yv))
+
+        train_loss = float(np.mean(losses))
+        history.append({"epoch": epoch, "train_loss": train_loss, "val_loss": val_loss})
+        if val_loss < best - 1e-6:
+            best = val_loss
+            best_epoch = epoch
+            best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+            wait = 0
+        else:
+            wait += 1
+
+        if epoch == 1 or epoch % 10 == 0:
+            print(f"epoch={epoch:03d} train={train_loss:.6f} val={val_loss:.6f}")
+        if wait >= args.patience:
+            print(f"early stopping at epoch={epoch}; best_epoch={best_epoch}")
+            break
+
+    if best_state is None:
+        raise RuntimeError("No valid checkpoint.")
+
+    model.load_state_dict(best_state)
+    model.eval()
+    with torch.no_grad():
+        pred_std = model(torch.from_numpy(xte).to(device)).cpu().numpy()
+
+    pred = pred_std * std + mean
+    target = xb[te]
+    r = row_pearson(pred, target)
+    rmse = np.sqrt(np.mean((pred - target) ** 2, axis=1))
+    identity_r = row_pearson(xa[te], target)
+
+    result = {
+        "model": "residual_denoiser",
+        "n_test": int(te.sum()),
+        "median_pearson": float(np.nanmedian(r)),
+        "mean_pearson": float(np.nanmean(r)),
+        "median_rmse": float(np.median(rmse)),
+        "identity_median_pearson": float(np.nanmedian(identity_r)),
+        "median_gain_over_identity": float(np.nanmedian(r - identity_r)),
+        "best_val_loss": float(best),
+        "best_epoch": int(best_epoch),
+        "epochs_ran": int(len(history)),
+        "hidden": int(args.hidden),
+        "latent": int(args.latent),
+        "residual_scale": float(args.residual_scale),
+        "device": str(device),
+    }
+
+    (args.output_dir / "summary.json").write_text(json.dumps(result, indent=2))
+    pd.DataFrame(history).to_csv(args.output_dir / "history.csv", index=False)
+    pd.DataFrame({
+        "perturbation": a.obs_names[te],
+        "pearson": r,
+        "identity_pearson": identity_r,
+        "gain_over_identity": r - identity_r,
+        "rmse": rmse,
+    }).to_csv(args.output_dir / "per_perturbation.csv", index=False)
+    torch.save(best_state, args.output_dir / "model.pt")
+    save_metadata(run_metadata(vars(args)), args.output_dir / "run_metadata.json")
+    print("\n=== RESIDUAL DENOISER TEST RESULT ===")
+    print(json.dumps(result, indent=2))
+
+
+if __name__ == "__main__":
+    main()
