@@ -87,12 +87,19 @@ def main():
         )
 
         # Development targets. These are labels only, never deployment features.
-        x["target_personalize_regret_gt_0_01"] = (
-            x["oracle_regret_median"] > .01
-        ).astype("Int64")
-        x["target_personalize_regret_gt_0_02"] = (
-            x["oracle_regret_median"] > .02
-        ).astype("Int64")
+        valid_regret = x["oracle_regret_median"].notna()
+        x["target_personalize_regret_gt_0_01"] = pd.Series(
+            pd.NA, index=x.index, dtype="Int64"
+        )
+        x["target_personalize_regret_gt_0_02"] = pd.Series(
+            pd.NA, index=x.index, dtype="Int64"
+        )
+        x.loc[valid_regret, "target_personalize_regret_gt_0_01"] = (
+            x.loc[valid_regret, "oracle_regret_median"] > .01
+        ).astype(int).to_numpy()
+        x.loc[valid_regret, "target_personalize_regret_gt_0_02"] = (
+            x.loc[valid_regret, "oracle_regret_median"] > .02
+        ).astype(int).to_numpy()
 
         all_rows.append(x)
         audit.append({
