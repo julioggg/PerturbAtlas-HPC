@@ -110,6 +110,11 @@ def load_long_table(features_path: Path, landscape_root: Path, regret_root: Path
         fds=feat[feat.dataset==ds].copy()
         for seed in sorted(fds.seed.unique()):
             fseed=fds[fds.seed==seed].copy()
+            # Keep only keys + split-safe predictors from the feature table.
+            # Evaluation/label columns such as global_pearson are intentionally
+            # excluded here and joined only from the regret table below.
+            fseed = fseed[["dataset","seed","perturbation"] + base_features].copy()
+
             lp=landscape_root/ds/f"seed_{int(seed)}"/"correction_landscape.csv"
             rp=regret_root/ds/"per_perturbation_regret.csv"
             if not lp.exists() or not rp.exists():
